@@ -806,14 +806,14 @@ class LxcContainerManagement(object):
             build_command=build_command
         )
 
-        self.lxc_path = self.module.params.get('lxc_path', None)
         # check if the same with newpath
         newpath = self.module.params.get('new_path',None)
         if newpath:
-             if newpath != self.lxc_path:
-               if not os.path.isdir(newpath):
-                   os.makedirs(newpath)
-               build_command.append('--newpath %s' % newpath)
+            self.lxc_path = self.module.params.get('lxc_path', None)
+            if newpath != self.lxc_path:
+                if not os.path.isdir(newpath):
+                    os.makedirs(newpath)
+                build_command.append('--newpath %s' % newpath)
 
         # Load logging for the instance when creating it.
         if self.module.params.get('clone_snapshot') in BOOLEANS_TRUE:
