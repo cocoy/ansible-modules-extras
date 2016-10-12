@@ -121,6 +121,13 @@ options:
             clone.
         required: false
         default: false
+    clone_newpath:
+        version_added: "2.0"
+        description:
+          - Path of the new cloned server. This is only used when state is
+            clone.
+        required: false
+        default: false
     clone_snapshot:
         version_added: "2.0"
         required: false
@@ -461,6 +468,7 @@ LXC_COMMAND_MAP = {
             'template': '--template',
             'backing_store': '--bdev',
             'lxc_path': '--lxcpath',
+            'new_path': '--newpath',
             'lv_name': '--lvname',
             'vg_name': '--vgname',
             'thinpool': '--thinpool',
@@ -474,6 +482,7 @@ LXC_COMMAND_MAP = {
         'variables': {
             'backing_store': '--backingstore',
             'lxc_path': '--lxcpath',
+            'new_path': '--newpath',
             'fs_size': '--fssize',
             'name': '--orig',
             'clone_name': '--new'
@@ -797,6 +806,15 @@ class LxcContainerManagement(object):
             build_command=build_command
         )
 
+        self.lxc_path = self.module.params.get('lxc_path', None)
+        # check if the same with newpath
+        newpath = self.module.params.get('new_path',None)
+        if newpath:
+             if newpath != self.lxc_path:
+               if not os.path.isdir(newpath):
+                   os.makedirs(newpath)
+               build_command.append('--newpath %s' % newpath)
+
         # Load logging for the instance when creating it.
         if self.module.params.get('clone_snapshot') in BOOLEANS_TRUE:
             build_command.append('--snapshot')
@@ -981,9 +999,9 @@ class LxcContainerManagement(object):
             }
 
     def _check_clone(self):
-        """Create a compressed archive of a container.
+        """Create a clone of a container.
 
-        This will store archive_info in as self.archive_info
+        This will store clone_info in as self.clone_info
         """
 
         clone_name = self.module.params.get('clone_name')
@@ -1694,6 +1712,9 @@ def main():
                 type='str'
             ),
             lxc_path=dict(
+                type='path'
+            ),
+            new_path=dict(
                 type='path'
             ),
             state=dict(
