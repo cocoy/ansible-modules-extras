@@ -122,9 +122,9 @@ options:
         required: false
         default: false
     clone_newpath:
-        version_added: "2.0"
+        version_added: "2.3"
         description:
-          - Path of the new cloned server. This is only used when state is
+          - New path location for a new cloned server. This is only used when state is
             clone.
         required: false
         default: false
